@@ -11,28 +11,26 @@ public class Quad : MonoBehaviour {
 
     private Vector3[] m_finalVerts = new Vector3[4];
     private Vector3[] m_finalNormals = new Vector3[4];
-    private Vector2[] m_finalUVs = new Vector2[4];
 
     private Vector3[] m_workingVerts = new Vector3[4];
     private Vector3[] m_workingNormals = new Vector3[4];
-    private Vector2[] m_workingUVs = new Vector2[4];
 
-    private int[] m_triangles = new int[] {
-        0, 2, 3,
-        3, 1, 0
+    public int[] m_triangles = new int[] {
+        0, 1, 4,
+        1, 3, 4,
+        1, 2, 3
     };
 
     public Color m_nextColor;
 
     public Vector3[] m_startVerts = new Vector3[4];
     public Vector3[] m_startNormals = new Vector3[4];
-    public Vector2[] m_startUVs = new Vector2[4];
 
     public Vector2 m_vertLimits = new Vector2(-1, 1);
     public Vector2 m_normalLimits = new Vector2(-1, 1);
-    public Vector2 m_uvLimits = new Vector2(-1, 1);
 
     public float m_speed = 1.0f;
+    public int m_numOfVerts = 4;
 
     void Start() {
         m_mf = GetComponent<MeshFilter>();
@@ -43,13 +41,17 @@ public class Quad : MonoBehaviour {
         m_mesh = m_mf.sharedMesh;
         m_renderer = GetComponent<MeshRenderer>();
 
+        m_finalVerts = new Vector3[m_numOfVerts];
+        m_finalNormals = new Vector3[m_numOfVerts];
+        m_workingVerts = new Vector3[m_numOfVerts];
+        m_workingNormals = new Vector3[m_numOfVerts];
+
         GenerateFinalPoints();
         m_nextColor = GetRandomColor();
 
         m_mesh.Clear();
         m_mesh.vertices = m_startVerts;
         m_mesh.normals = m_startNormals;
-        m_mesh.uv = m_startUVs;
         m_mesh.triangles = m_triangles;
     }
 
@@ -61,7 +63,6 @@ public class Quad : MonoBehaviour {
         m_mesh.Clear();
         m_mesh.vertices = LerpVectorArray(m_workingVerts, m_finalVerts, m_speed * Time.deltaTime);
         m_mesh.normals = LerpVectorArray(m_workingNormals, m_finalNormals, m_speed * Time.deltaTime);
-        m_mesh.uv = m_startUVs;
         m_mesh.triangles = m_triangles;
 
         m_renderer.materials[0].color = Color.Lerp(m_renderer.material.color, m_nextColor, m_speed * Time.deltaTime);
@@ -75,11 +76,24 @@ public class Quad : MonoBehaviour {
 
     private void GenerateFinalPoints()
     {
-        for(int i = 0; i < 4; i++)
+
+
+        //for(int i = 0; i < pointNum; i++)
+        //{
+        //    m_finalVerts[i] = new Vector3(GetRandomNum(m_vertLimits), GetRandomNum(m_vertLimits), 0/*GetRandomNum(m_vertLimits)*/);
+        //    m_finalNormals[i] = new Vector3(GetRandomNum(m_normalLimits), GetRandomNum(m_normalLimits), GetRandomNum(m_normalLimits));
+        //}
+
+        m_finalVerts[0] = new Vector3(Mathf.Abs(GetRandomNum(m_vertLimits)), Mathf.Abs(GetRandomNum(m_vertLimits)), 0/*GetRandomNum(m_vertLimits)*/);
+        m_finalVerts[1] = new Vector3(GetRandomNum(m_vertLimits), Mathf.Abs(GetRandomNum(m_vertLimits)), 0/*GetRandomNum(m_vertLimits)*/);
+        m_finalVerts[2] = new Vector3(-Mathf.Abs(GetRandomNum(m_vertLimits)), Mathf.Abs(GetRandomNum(m_vertLimits)), 0/*GetRandomNum(m_vertLimits)*/);
+        m_finalVerts[3] = new Vector3(-Mathf.Abs(GetRandomNum(m_vertLimits)), -Mathf.Abs(GetRandomNum(m_vertLimits)), 0/*GetRandomNum(m_vertLimits)*/);
+        m_finalVerts[4] = new Vector3(Mathf.Abs(GetRandomNum(m_vertLimits)), -Mathf.Abs(GetRandomNum(m_vertLimits)), 0/*GetRandomNum(m_vertLimits)*/);
+
+        for (int i = 0; i < m_numOfVerts; i++)
         {
-            m_finalVerts[i] = new Vector3(GetRandomNum(m_vertLimits), GetRandomNum(m_vertLimits), GetRandomNum(m_vertLimits));
-            m_finalNormals[i] = new Vector3(GetRandomNum(m_uvLimits), GetRandomNum(m_uvLimits), GetRandomNum(m_uvLimits));
-            m_finalUVs[i] = new Vector2(GetRandomNum(m_uvLimits), GetRandomNum(m_uvLimits));
+            //m_finalVerts[i] = new Vector3(GetRandomNum(m_vertLimits), GetRandomNum(m_vertLimits), 0/*GetRandomNum(m_vertLimits)*/);
+            m_finalNormals[i] = new Vector3(GetRandomNum(m_normalLimits), GetRandomNum(m_normalLimits), GetRandomNum(m_normalLimits));
         }
     }
 
