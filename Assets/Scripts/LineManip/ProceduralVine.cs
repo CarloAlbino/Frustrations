@@ -5,7 +5,7 @@ using UnityEngine;
 public class ProceduralVine : MonoBehaviour {
 
     [SerializeField]
-    private List<Leaf> m_leafs = new List<Leaf>();
+    private Leaf m_base = null;
 
     public int m_minSegements = 5;
     public int m_maxSegements = 12;
@@ -19,36 +19,62 @@ public class ProceduralVine : MonoBehaviour {
     public float m_curveWidth = 0.5f;
     public Material m_curveMaterial;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
 	void Update () {
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameObject newNode = new GameObject();
-            newNode.transform.parent = this.transform;
-
-            newNode.AddComponent<Leaf>();
-            m_leafs.Add(newNode.GetComponent<Leaf>());
-
-            int segements = Random.Range(m_minSegements, m_maxSegements);
-            float height = Random.Range(m_minHeight, m_maxHeight);
-            float distance = Random.Range(m_minDistance, m_maxDistance);
-
-            if (m_leafs.Count <= 1)
+            if (m_base == null)
             {
-                m_leafs[m_leafs.Count - 1].SetCurveProperties(m_curveWidth, m_curveMaterial);
-                m_leafs[m_leafs.Count - 1].GenerateCurve(transform.position, transform.position, segements, height, distance, (Random.Range(0, 2) == 0) ? -1 : 1);
+                int segements = Random.Range(m_minSegements, m_maxSegements);
+                float height = Random.Range(m_minHeight, m_maxHeight);
+                float distance = Random.Range(m_minDistance, m_maxDistance);
+
+                GameObject newNode = new GameObject();
+                newNode.transform.parent = this.transform;
+
+                newNode.AddComponent<Leaf>();
+                m_base = newNode.GetComponent<Leaf>();
+                m_base.nodeType = NodeType.Leaf;
+                m_base.gameObject.name = "Plant Base";
+
+                m_base.SetCurveProperties(m_curveWidth, m_curveMaterial);
+                m_base.GenerateCurve(transform.position, transform.position, segements, height, distance, (Random.Range(0, 2) == 0) ? -1 : 1);
             }
             else
             {
-                m_leafs[m_leafs.Count - 1].transform.position = m_leafs[m_leafs.Count - 2].transform.position + m_leafs[m_leafs.Count - 2].connectionPoint;
-                m_leafs[m_leafs.Count - 1].SetCurveProperties(m_curveWidth, m_curveMaterial);
-                m_leafs[m_leafs.Count - 1].GenerateCurve(transform.position, transform.position + m_leafs[m_leafs.Count - 2].connectionPoint, segements, height, distance, (Random.Range(0, 2) == 0) ? -1 : 1);
+                List<PlantNode> leafs = m_base.GetLeafs(m_base);
+
+                foreach(PlantNode pn in leafs)
+                {
+                    int randomBranching = Random.Range(0, 4);
+
+                    if (randomBranching == 0)
+                    {
+                        pn.nodeType = NodeType.Flower;
+                    }
+
+                    for (int i = 0; i < randomBranching; i++)
+                    {
+                        int segements = Random.Range(m_minSegements, m_maxSegements);
+                        float height = Random.Range(m_minHeight, m_maxHeight);
+                        float distance = Random.Range(m_minDistance, m_maxDistance);
+
+                        GameObject newNode = new GameObject();
+                        newNode.name = "Stem";
+                        newNode.transform.parent = pn.transform;
+                        newNode.AddComponent<Leaf>();
+
+                        Leaf newLeaf = newNode.GetComponent<Leaf>();
+                        newLeaf.nodeType = NodeType.Leaf;
+                        newLeaf.parent = pn;
+
+                        newLeaf.transform.position = pn.transform.position + ((Leaf)pn).connectionPoint;
+                        newLeaf.SetCurveProperties(m_curveWidth, m_curveMaterial);
+                        newLeaf.GenerateCurve(Vector3.zero, Vector3.zero/*newLeaf.transform.position, newLeaf.transform.position/*((Leaf)pn).getPrevPoint*/, segements, height, distance, (Random.Range(0, 2) == 0) ? -1 : 1);
+
+                        pn.children.Add(newLeaf);
+                    }
+                }
             }
         }
 

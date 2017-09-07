@@ -10,16 +10,11 @@ public class Leaf : PlantNode {
     Vector3[] bezierPoints = new Vector3[4];
 
     public Vector3 connectionPoint { get { return m_line.GetPosition(m_line.positionCount - 1); } }
-    public Vector3 getPrevPoint { get { return bezierPoints[2]/*m_line.GetPosition(m_line.positionCount - 2)*/; } }
+    public Vector3 getPrevPoint { get { return bezierPoints[2]; } }
 
     void Start ()
     {
         m_line = GetComponent<LineRenderer>();
-	}
-	
-	void Update ()
-    {
-		
 	}
 
     public void GenerateCurve(Vector3 startPoint, Vector3 prevPoint, int segements, float height, float distance, int direction)
@@ -34,7 +29,7 @@ public class Leaf : PlantNode {
         // 3 done before 2
         bezierPoints[3] = new Vector3(direction * (distance *0.5f + bezierPoints[0].x), bezierPoints[0].y + height, bezierPoints[0].z);
         // 2 based on 3
-        bezierPoints[2] = new Vector3(direction * (bezierPoints[3].x - bezierPoints[1].x) / 2, (bezierPoints[3].y - bezierPoints[1].y) / 2, bezierPoints[0].z);
+        bezierPoints[2] = new Vector3((bezierPoints[3].x - bezierPoints[1].x) / 2, (bezierPoints[3].y - bezierPoints[1].y) / 2, bezierPoints[0].z);
 
         // Create points on curve
         Vector3[] newPoints = new Vector3[segements];
@@ -72,6 +67,6 @@ public class Leaf : PlantNode {
 
     public Vector3 GetOppositeDirection(Vector3 v)
     {
-        return (-v);//.normalized;
+        return (-v);
     }
 }
